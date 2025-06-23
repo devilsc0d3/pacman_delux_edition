@@ -23,6 +23,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(sans_titre
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
+
+        test.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET sans_titre APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
@@ -64,6 +66,9 @@ install(TARGETS sans_titre
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
+
+target_link_libraries(pacman PRIVATE Qt5::Widgets Qt5::Multimedia)
+
 
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(sans_titre)

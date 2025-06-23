@@ -2,28 +2,86 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>800</width>
-    <height>600</height>
-   </rect>
-  </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>PacMan Neon</string>
   </property>
-  <widget class="QWidget" name="centralwidget"/>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>800</width>
-     <height>21</height>
-    </rect>
+  <widget class="QWidget" name="centralwidget">
+   <property name="styleSheet">
+    <string notr="true">
+* {
+    background-color: black;
+}
+
+QLabel {
+    color: #FFFF00;
+    font-size: 24px;
+    font-family: "Press Start 2P";
+    background: transparent;
+    qproperty-alignment: AlignCenter;
+}
+
+QPushButton {
+    color: #FFFF00;
+    background-color: transparent;
+    font-family: "Press Start 2P";
+    font-size: 16px;
+    padding: 12px 20px;
+    border: 2px solid #FFFF00;
+    border-radius: 4px;
+    text-align: center;
+    box-shadow: 0 0 10px #FFFF00;
+}
+
+QPushButton:hover {
+    color: #FF0040;
+    border: 2px solid #FF0040;
+    box-shadow: 0 0 20px #FF0040;
+}
+    </string>
    </property>
+   <layout class="QVBoxLayout" name="verticalLayout_main">
+    <item>
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>WELCOME TO PACMAN</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayout_buttons">
+      <item>
+       <widget class="QPushButton" name="pushButton">
+        <property name="text">
+         <string>START GAME</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton">
+        <property name="text">
+         <string>RULES</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_2">
+        <property name="text">
+         <string>OPTIONS</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_3">
+        <property name="text">
+         <string>QUIT</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
   </widget>
+  <widget class="QMenuBar" name="menubar"/>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources/>

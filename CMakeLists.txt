@@ -11,6 +11,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets WebSockets)
 
 set(PROJECT_SOURCES
         main.cpp
@@ -23,15 +24,17 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(sans_titre
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        # Files from feat/rulespage
+        lobbyserver.h
+        lobbyserver.cpp
+        lobbyclient.h
+        lobbyclient.cpp
         rulesdialog.h
         rulesdialog.cpp
-        # Files from feat/map
         map.h
         map.cpp
         pacGum.h
         pacGum.cpp
-        Bonus.h # Corrigé : listé une seule fois
+        Bonus.h
         Bonus.cpp
         PacGumFactory.h
         pacGumFactory.cpp
@@ -56,7 +59,10 @@ else()
     endif()
 endif()
 
-target_link_libraries(sans_titre PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(sans_titre PRIVATE
+    Qt${QT_VERSION_MAJOR}::Widgets
+    Qt${QT_VERSION_MAJOR}::WebSockets
+  )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an

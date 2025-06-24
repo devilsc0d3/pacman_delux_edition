@@ -2,52 +2,144 @@
 #include "./ui_mainwindow.h"
 #include <QMessageBox>
 #include <QUrl>
+#include <QTimer>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    connect(ui->buttonCreate, &QPushButton::clicked, this, &MainWindow::onCreateLobby);
+    connect(ui->buttonJoin, &QPushButton::clicked, this, &MainWindow::onJoinLobby);
+    connect(ui->buttonLeave, &QPushButton::clicked, this, &MainWindow::onLeaveLobby);
+    connect(ui->buttonRefreshLobbies, &QPushButton::clicked, this, &MainWindow::onRefreshLobbies);
+
+    connect(ui->listWidgetLobbies, &QListWidget::itemDoubleClicked, this, [this](QListWidgetItem* item){
+        ui->lineEditLobbyId->setText(item->text());
+        qDebug() << "Lobby sélectionné depuis la liste :" << item->text();
+    });
+
+
+    QTimer *refreshTimer = new QTimer(this);
+    connect(refreshTimer, &QTimer::timeout, this, &MainWindow::onRefreshLobbies);
+    refreshTimer->start(10000); // 10s
+
+    qDebug() << "UI initialisée.";
 }
 
 MainWindow::~MainWindow()
 {
+    if (client) {
+        qDebug() << "Fermeture : envoi de leave au serveur.";
+        client->sendLeave();
+        delete client;
+    }
     delete ui;
-    delete client;
+    qDebug() << "MainWindow détruit.";
 }
 
-void MainWindow::on_buttonConnect_clicked()
+void MainWindow::startClient()
 {
-    QString name = ui->lineEditName->text();
-    if (name.isEmpty()) {
-        QMessageBox::warning(this, "Erreur", "Entrez un pseudo !");
-        return;
+    if (client) {
+        delete client;
+        qDebug() << "Ancien client détruit.";
     }
 
-    if (client)
-        delete client;
-
-    // Connexion au serveur local sur le port 1234
     client = new LobbyClient(QUrl(QStringLiteral("ws://localhost:1234")), this);
 
     connect(client, &LobbyClient::connectionSuccess, this, &MainWindow::onConnectionSuccess);
     connect(client, &LobbyClient::connectionFailed, this, &MainWindow::onConnectionFailed);
-    connect(client, &LobbyClient::lobbyUpdated, this, &MainWindow::updateLobby);
+    connect(client, &LobbyClient::lobbyUpdated, this, &MainWindow::onLobbyUpdated);
+    connect(client, &LobbyClient::lobbyListReceived, this, &MainWindow::onLobbyListReceived);
+
+    qDebug() << "Client WebSocket initialisé.";
+}
+
+void MainWindow::onCreateLobby()
+{
+    QString name = ui->lineEditName->text();
+    QString lobbyId = ui->lineEditLobbyId->text();
+
+    if (name.isEmpty() || lobbyId.isEmpty()) {
+        QMessageBox::warning(this, "Erreur", "Entrez un pseudo ET un ID de lobby !");
+        return;
+    }
+
+    qDebug() << "Création du lobby" << lobbyId << "par" << name;
+    startClient();
+    client->sendCreate(lobbyId, name);
+}
+
+void MainWindow::onJoinLobby()
+{
+    QString name = ui->lineEditName->text();
+    QString lobbyId = ui->lineEditLobbyId->text();
+
+    if (name.isEmpty() || lobbyId.isEmpty()) {
+        QMessageBox::warning(this, "Erreur", "Entrez un pseudo ET un ID de lobby !");
+        return;
+    }
+
+    qDebug() << "Rejoindre le lobby" << lobbyId << "avec pseudo" << name;
+    startClient();
+    client->sendJoin(lobbyId, name);
+}
+
+void MainWindow::onLeaveLobby()
+{
+    if (client) {
+        qDebug() << "Quitter le lobby actuel.";
+        client->sendLeave();
+        ui->listWidgetLobby->clear();
+    }
+}
+
+void MainWindow::onRefreshLobbies()
+{
+    if (client) {
+        qDebug() << "Demande manuelle de la liste des lobbies.";
+        client->requestLobbyList();
+    } else {
+        qDebug() << "Pas de client connecté pour rafraîchir la liste.";
+    }
 }
 
 void MainWindow::onConnectionSuccess()
 {
-    client->sendJoinMessage(ui->lineEditName->text());
+    qDebug() << "Connexion WebSocket réussie.";
 }
 
 void MainWindow::onConnectionFailed(QString reason)
 {
-    QMessageBox::critical(this, "Connexion échouée", reason);
+    qDebug() << "Erreur de connexion : " << reason;
+    QMessageBox::critical(this, "Erreur de connexion", reason);
+
+    if (client) {
+        delete client;
+        client = nullptr;
+    }
 }
-void MainWindow::updateLobby(QStringList players)
+
+void MainWindow::onLobbyUpdated(QString lobbyId, QStringList players)
 {
     ui->listWidgetLobby->clear();
     for (const QString &p : players) {
         ui->listWidgetLobby->addItem(p);
+        qDebug() << " - joueur : " << p;
     }
+
+    ui->lineEditLobbyId->setText(lobbyId);
+    qDebug() << "Lobby mis à jour : " << lobbyId << "avec" << players.size() << "joueurs.";
+}
+
+void MainWindow::onLobbyListReceived(QStringList lobbies)
+{
+    ui->listWidgetLobbies->clear();
+    for (const QString &lobby : lobbies) {
+        ui->listWidgetLobbies->addItem(lobby);
+    }
+
+    qDebug() << "Liste des lobbies reçue : " << lobbies;
 }

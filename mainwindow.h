@@ -15,18 +15,28 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
+    explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-
 private slots:
-    void on_buttonConnect_clicked();
-    void updateLobby(QList<QString> players);
+
+    void onCreateLobby();
+    void onJoinLobby();
+    void onLeaveLobby();
+
     void onConnectionSuccess();
     void onConnectionFailed(QString reason);
+    void onLobbyUpdated(QString lobbyId, QStringList players);
+    void onLobbyListReceived(QStringList lobbies);
+    void onRefreshLobbies();
 
 private:
+    void startClient();
+
     Ui::MainWindow *ui;
     LobbyClient *client = nullptr;
 };
-#endif // MAINWINDOW_H
+
+
+
+#endif

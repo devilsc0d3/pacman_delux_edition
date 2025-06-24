@@ -4,15 +4,26 @@
 #include <QObject>
 #include <QtWebSockets/QWebSocket>
 
+enum class PendingActionType { None, Create, Join };
+
 class LobbyClient : public QObject
 {
     Q_OBJECT
 public:
     explicit LobbyClient(const QUrl &url, QObject *parent = nullptr);
-    void sendJoinMessage(const QString &name);
+
+    void sendCreate(const QString &lobbyId, const QString &name);
+    void sendJoin(const QString &lobbyId, const QString &name);
+    void sendLeave();
+    void requestLobbyList();
+
+    QString pendingName;
+    QString pendingLobby;
+    PendingActionType pendingAction = PendingActionType::None;
 
 signals:
-    void lobbyUpdated(QStringList players);
+    void lobbyUpdated(QString lobbyId, QStringList players);
+    void lobbyListReceived(QStringList lobbies);
     void connectionSuccess();
     void connectionFailed(QString reason);
 
@@ -26,4 +37,4 @@ private:
     QUrl m_url;
 };
 
-#endif 
+#endif // LOBBYCLIENT_H

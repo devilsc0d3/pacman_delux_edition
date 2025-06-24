@@ -1,11 +1,8 @@
 #include "lobbyserver.h"
-#include <QJsonArray>
-#include <QDebug>
 #include <QJsonDocument>
 #include <QJsonObject>
-
-
-
+#include <QJsonArray>
+#include <QDebug>
 
 LobbyServer::LobbyServer(quint16 port, QObject *parent)
     : QObject(parent),
@@ -17,97 +14,154 @@ LobbyServer::LobbyServer(quint16 port, QObject *parent)
                 this, &LobbyServer::onNewConnection);
         qDebug() << "Server listening on port" << port;
     } else {
-        qDebug() << "Failed to start server on port" << port;
+        qDebug() << "Failed to start server.";
     }
 }
 
 LobbyServer::~LobbyServer()
 {
     m_server->close();
-    for (auto &player : m_players)
-        player.socket->deleteLater();
+    for (auto client : m_clientInfo.keys()) {
+        client->deleteLater();
+    }
 }
 
 void LobbyServer::onNewConnection()
 {
-    if (m_players.size() >= MAX_PLAYERS) {
-        QWebSocket *rejected = m_server->nextPendingConnection();
-        rejected->sendTextMessage("Lobby full");
-        rejected->close();
-        rejected->deleteLater();
-        qDebug() << "Connection refused: lobby is full.";
-        return;
-    }
-
     QWebSocket *socket = m_server->nextPendingConnection();
-    connect(socket, &QWebSocket::textMessageReceived,
-            this, &LobbyServer::processMessage);
-    connect(socket, &QWebSocket::disconnected,
-            this, &LobbyServer::socketDisconnected);
+    connect(socket, &QWebSocket::textMessageReceived, this, &LobbyServer::processMessage);
+    connect(socket, &QWebSocket::disconnected, this, &LobbyServer::socketDisconnected);
 
-    // Temporairement, nom inconnu
-    Player p;
-    p.name = "Unnamed";
-    p.socket = socket;
-
-    m_players.append(p);
-    qDebug() << "New player connected. Waiting for name...";
-
-    broadcastLobbyStatus();
+    qDebug() << "Client connected.";
+    broadcastLobbyList();
 }
 
 void LobbyServer::processMessage(const QString &message)
 {
-    QWebSocket *senderSocket = qobject_cast<QWebSocket *>(sender());
-
-    // Suppose que le client envoie un JSON comme : { "type": "join", "name": "PacMan42" }
+    QWebSocket *socket = qobject_cast<QWebSocket *>(sender());
     QJsonDocument doc = QJsonDocument::fromJson(message.toUtf8());
     if (!doc.isObject()) return;
-    QJsonObject obj = doc.object();
 
-    if (obj["type"] == "join" && obj.contains("name")) {
-        for (Player &p : m_players) {
-            if (p.socket == senderSocket) {
-                p.name = obj["name"].toString();
-                qDebug() << "Player set name:" << p.name;
-                broadcastLobbyStatus();
-                return;
-            }
+    QJsonObject obj = doc.object();
+    QString type = obj["type"].toString();
+
+    if (type == "create") {
+        QString lobbyId = obj["lobby"].toString();
+        QString name = obj["name"].toString();
+
+        if (m_lobbies.contains(lobbyId)) {
+            socket->sendTextMessage(R"({"type":"error","reason":"Lobby already exists"})");
+            return;
         }
+
+        Player player{name, socket};
+        m_lobbies[lobbyId].append(player);
+        m_clientInfo[socket] = qMakePair(lobbyId, name);
+
+        qDebug() << name << "created lobby" << lobbyId;
+        broadcastLobbyStatus(lobbyId);
+        broadcastLobbyList();
+    }
+    else if (type == "join") {
+        QString lobbyId = obj["lobby"].toString();
+        QString name = obj["name"].toString();
+
+        if (!m_lobbies.contains(lobbyId)) {
+            socket->sendTextMessage(R"({"type":"error","reason":"Lobby not found"})");
+            return;
+        }
+
+        if (m_lobbies[lobbyId].size() >= MAX_PLAYERS_PER_LOBBY) {
+            socket->sendTextMessage(R"({"type":"disconnect","reason":"Lobby full"})");
+            socket->close();
+            return;
+        }
+
+        Player player{name, socket};
+        m_lobbies[lobbyId].append(player);
+        m_clientInfo[socket] = qMakePair(lobbyId, name);
+
+        qDebug() << name << "joined lobby" << lobbyId;
+        broadcastLobbyStatus(lobbyId);
+    }
+    else if (type == "leave") {
+        removePlayer(socket);
+    }
+    else if (type == "list") {
+        broadcastLobbyList();
     }
 }
 
 void LobbyServer::socketDisconnected()
 {
-    QWebSocket *client = qobject_cast<QWebSocket *>(sender());
-
-    for (int i = 0; i < m_players.size(); ++i) {
-        if (m_players[i].socket == client) {
-            qDebug() << "Player disconnected:" << m_players[i].name;
-            m_players.removeAt(i);
-            break;
-        }
-    }
-
-    client->deleteLater();
-    broadcastLobbyStatus();
+    QWebSocket *socket = qobject_cast<QWebSocket *>(sender());
+    removePlayer(socket);
+    socket->deleteLater();
 }
 
-void LobbyServer::broadcastLobbyStatus()
+void LobbyServer::removePlayer(QWebSocket *socket)
 {
-    QJsonArray playerArray;
-    for (const Player &p : m_players) {
-        playerArray.append(p.name);
+    if (!m_clientInfo.contains(socket))
+        return;
+
+    QString lobbyId = m_clientInfo[socket].first;
+    QString playerName = m_clientInfo[socket].second;
+
+    QList<Player> &players = m_lobbies[lobbyId];
+    auto it = std::remove_if(players.begin(), players.end(), [socket](const Player &p) {
+        return p.socket == socket;
+    });
+
+    if (it != players.end()) {
+        players.erase(it, players.end());
+        qDebug() << playerName << "left lobby" << lobbyId;
     }
 
-    QJsonObject lobbyInfo;
-    lobbyInfo["type"] = "lobby_update";
-    lobbyInfo["players"] = playerArray;
+    m_clientInfo.remove(socket);
 
-    QJsonDocument doc(lobbyInfo);
-    QString message = doc.toJson(QJsonDocument::Compact);
+    if (players.isEmpty()) {
+        m_lobbies.remove(lobbyId);
+        qDebug() << "Lobby" << lobbyId << "deleted (empty)";
+        broadcastLobbyList();
+    } else {
+        broadcastLobbyStatus(lobbyId);
+    }
+}
 
-    for (const Player &p : m_players) {
-        p.socket->sendTextMessage(message);
+void LobbyServer::broadcastLobbyStatus(const QString &lobbyId)
+{
+    if (!m_lobbies.contains(lobbyId)) return;
+
+    QJsonArray playerArray;
+    for (const Player &p : m_lobbies[lobbyId])
+        playerArray.append(p.name);
+
+    QJsonObject obj;
+    obj["type"] = "lobby_update";
+    obj["lobby"] = lobbyId;
+    obj["players"] = playerArray;
+
+    QJsonDocument doc(obj);
+    QString msg = doc.toJson(QJsonDocument::Compact);
+
+    for (const Player &p : m_lobbies[lobbyId])
+        p.socket->sendTextMessage(msg);
+}
+
+void LobbyServer::broadcastLobbyList()
+{
+    QJsonArray lobbyArray;
+    for (const QString &id : m_lobbies.keys())
+        lobbyArray.append(id);
+
+    QJsonObject obj;
+    obj["type"] = "lobby_list";
+    obj["lobbies"] = lobbyArray;
+
+    QJsonDocument doc(obj);
+    QString msg = doc.toJson(QJsonDocument::Compact);
+
+    for (QWebSocket *socket : m_clientInfo.keys()) {
+        socket->sendTextMessage(msg);
     }
 }

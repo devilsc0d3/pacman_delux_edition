@@ -18,6 +18,15 @@ void LobbyClient::onConnected()
 {
     emit connectionSuccess();
     qDebug() << "Connected to server.";
+
+    // Rejouer l'action prévue si nécessaire
+    if (pendingAction == PendingActionType::Create) {
+        sendCreate(pendingLobby, pendingName);
+    } else if (pendingAction == PendingActionType::Join) {
+        sendJoin(pendingLobby, pendingName);
+    }
+
+    requestLobbyList();
 }
 
 void LobbyClient::onDisconnected()
@@ -26,29 +35,82 @@ void LobbyClient::onDisconnected()
     qDebug() << "Disconnected.";
 }
 
+void LobbyClient::sendCreate(const QString &lobbyId, const QString &name)
+{
+    pendingAction = PendingActionType::Create;
+    pendingName = name;
+    pendingLobby = lobbyId;
+
+    if (m_webSocket.state() == QAbstractSocket::ConnectedState) {
+        QJsonObject obj;
+        obj["type"] = "create";
+        obj["lobby"] = lobbyId;
+        obj["name"] = name;
+        QJsonDocument doc(obj);
+        m_webSocket.sendTextMessage(doc.toJson(QJsonDocument::Compact));
+    }
+}
+
+void LobbyClient::sendJoin(const QString &lobbyId, const QString &name)
+{
+    pendingAction = PendingActionType::Join;
+    pendingName = name;
+    pendingLobby = lobbyId;
+
+    if (m_webSocket.state() == QAbstractSocket::ConnectedState) {
+        QJsonObject obj;
+        obj["type"] = "join";
+        obj["lobby"] = lobbyId;
+        obj["name"] = name;
+        QJsonDocument doc(obj);
+        m_webSocket.sendTextMessage(doc.toJson(QJsonDocument::Compact));
+    }
+}
+
+void LobbyClient::sendLeave()
+{
+    QJsonObject obj;
+    obj["type"] = "leave";
+    QJsonDocument doc(obj);
+    m_webSocket.sendTextMessage(doc.toJson(QJsonDocument::Compact));
+}
+
+void LobbyClient::requestLobbyList()
+{
+    QJsonObject obj;
+    obj["type"] = "list";
+    QJsonDocument doc(obj);
+    m_webSocket.sendTextMessage(doc.toJson(QJsonDocument::Compact));
+}
+
 void LobbyClient::onTextMessageReceived(QString message)
 {
     QJsonDocument doc = QJsonDocument::fromJson(message.toUtf8());
     if (!doc.isObject()) return;
 
     QJsonObject obj = doc.object();
-    if (obj["type"] == "lobby_update") {
+    QString type = obj["type"].toString();
+
+    if (type == "lobby_update") {
+        QString lobbyId = obj["lobby"].toString();
         QStringList players;
         QJsonArray arr = obj["players"].toArray();
-        for (auto val : arr)
+        for (const auto &val : arr)
             players << val.toString();
-        emit lobbyUpdated(players);
+        emit lobbyUpdated(lobbyId, players);
     }
-    else if (message == "Lobby full") {
-        emit connectionFailed("Lobby is full");
+    else if (type == "lobby_list") {
+        QStringList lobbies;
+        QJsonArray arr = obj["lobbies"].toArray();
+        for (const auto &val : arr)
+            lobbies << val.toString();
+        emit lobbyListReceived(lobbies);
     }
-}
-
-void LobbyClient::sendJoinMessage(const QString &name)
-{
-    QJsonObject obj;
-    obj["type"] = "join";
-    obj["name"] = name;
-    QJsonDocument doc(obj);
-    m_webSocket.sendTextMessage(doc.toJson(QJsonDocument::Compact));
+    else if (type == "disconnect") {
+        emit connectionFailed(obj["reason"].toString());
+        m_webSocket.close();
+    }
+    else if (type == "error") {
+        emit connectionFailed(obj["reason"].toString());
+    }
 }

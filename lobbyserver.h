@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QtWebSockets/QWebSocketServer>
 #include <QtWebSockets/QWebSocket>
+#include <QMap>
+#include <QSet>
 
 struct Player {
     QString name;
@@ -24,10 +26,15 @@ private slots:
 
 private:
     QWebSocketServer *m_server;
-    QList<Player> m_players;
-    const int MAX_PLAYERS = 4;
 
-    void broadcastLobbyStatus();
+    QMap<QString, QList<Player>> m_lobbies;
+    QMap<QWebSocket*, QPair<QString, QString>> m_clientInfo;
+
+    const int MAX_PLAYERS_PER_LOBBY = 4;
+
+    void broadcastLobbyList();
+    void broadcastLobbyStatus(const QString &lobbyId);
+    void removePlayer(QWebSocket* socket);
 };
 
-#endif // LOBBYSERVER_H
+#endif

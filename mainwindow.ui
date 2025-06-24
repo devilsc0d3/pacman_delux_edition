@@ -17,34 +17,99 @@
    <widget class="QLineEdit" name="lineEditName">
     <property name="geometry">
      <rect>
-      <x>310</x>
-      <y>130</y>
+      <x>270</x>
+      <y>110</y>
       <width>113</width>
       <height>26</height>
      </rect>
     </property>
+    <property name="text">
+     <string>Pseudo</string>
+    </property>
    </widget>
-   <widget class="QPushButton" name="buttonConnect">
+   <widget class="QPushButton" name="buttonCreate">
     <property name="geometry">
      <rect>
-      <x>320</x>
-      <y>180</y>
-      <width>87</width>
+      <x>180</x>
+      <y>170</y>
+      <width>101</width>
       <height>26</height>
      </rect>
     </property>
     <property name="text">
-     <string>PushButton</string>
+     <string>Create Lobby</string>
     </property>
    </widget>
    <widget class="QListWidget" name="listWidgetLobby">
     <property name="geometry">
      <rect>
-      <x>240</x>
-      <y>240</y>
+      <x>470</x>
+      <y>270</y>
+      <width>171</width>
+      <height>192</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEditLobbyId">
+    <property name="geometry">
+     <rect>
+      <x>430</x>
+      <y>110</y>
+      <width>113</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Lobby Name</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="buttonJoin">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>170</y>
+      <width>87</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Join Lobby</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="buttonLeave">
+    <property name="geometry">
+     <rect>
+      <x>460</x>
+      <y>170</y>
+      <width>91</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Leave Lobby</string>
+    </property>
+   </widget>
+   <widget class="QListWidget" name="listWidgetLobbies">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>270</y>
       <width>256</width>
       <height>192</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="buttonRefreshLobbies">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>470</y>
+      <width>101</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Reload Lobby</string>
     </property>
    </widget>
   </widget>

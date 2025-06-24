@@ -23,12 +23,15 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(sans_titre
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
+        # Files from feat/rulespage
+        rulesdialog.h
+        rulesdialog.cpp
+        # Files from feat/map
         map.h
         map.cpp
         pacGum.h
         pacGum.cpp
-        Bonus.h
-        Bonus.h
+        Bonus.h # Corrigé : listé une seule fois
         Bonus.cpp
         PacGumFactory.h
         pacGumFactory.cpp

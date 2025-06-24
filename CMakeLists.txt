@@ -25,6 +25,15 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ${PROJECT_SOURCES}
         map.h
         map.cpp
+        pacGum.h
+        pacGum.cpp
+        Bonus.h
+        Bonus.h
+        Bonus.cpp
+        PacGumFactory.h
+        pacGumFactory.cpp
+        MapView.h
+        MapView.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET sans_titre APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

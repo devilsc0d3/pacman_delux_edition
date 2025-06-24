@@ -6,7 +6,7 @@
 #include <QUrl>
 #include <QTimer>
 #include <QDebug>
-#include "rulesdialog.h" // Ajout de la branche feat/map
+#include "rulesdialog.h"
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -15,7 +15,6 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    // Code ajouté par la branche feat/Server
     connect(ui->buttonCreate, &QPushButton::clicked, this, &MainWindow::onCreateLobby);
     connect(ui->buttonJoin, &QPushButton::clicked, this, &MainWindow::onJoinLobby);
     connect(ui->buttonLeave, &QPushButton::clicked, this, &MainWindow::onLeaveLobby);
@@ -44,8 +43,6 @@ MainWindow::~MainWindow()
     delete ui;
     qDebug() << "MainWindow détruit.";
 }
-
-// ---- Fonctions ajoutées par la branche feat/Server ----
 
 void MainWindow::startClient()
 {
@@ -103,12 +100,10 @@ void MainWindow::onLeaveLobby()
     }
 }
 
+// CORRECTION APPLIQUÉE ICI
 void MainWindow::onRefreshLobbies()
 {
-    // Note : le code original avait un `if (client)` qui empêchait de rafraîchir
-    // avant une première connexion. On l'adapte pour pouvoir se connecter et rafraîchir.
-    if (!client || client->state() != QAbstractSocket::ConnectedState) {
-        qDebug() << "Client non connecté, tentative de connexion pour rafraîchir.";
+    if (!client) {
         startClient();
     }
     client->requestLobbyList();
@@ -117,7 +112,6 @@ void MainWindow::onRefreshLobbies()
 void MainWindow::onConnectionSuccess()
 {
     qDebug() << "Connexion WebSocket réussie.";
-    // On peut demander la liste des lobbies dès la connexion réussie.
     client->requestLobbyList();
 }
 
@@ -137,11 +131,8 @@ void MainWindow::onLobbyUpdated(QString lobbyId, QStringList players)
     ui->listWidgetLobby->clear();
     for (const QString &p : players) {
         ui->listWidgetLobby->addItem(p);
-        qDebug() << " - joueur : " << p;
     }
-
     ui->lineEditLobbyId->setText(lobbyId);
-    qDebug() << "Lobby mis à jour : " << lobbyId << "avec" << players.size() << "joueurs.";
 }
 
 void MainWindow::onLobbyListReceived(QStringList lobbies)
@@ -150,12 +141,8 @@ void MainWindow::onLobbyListReceived(QStringList lobbies)
     for (const QString &lobby : lobbies) {
         ui->listWidgetLobbies->addItem(lobby);
     }
-
     qDebug() << "Liste des lobbies reçue : " << lobbies;
 }
-
-
-// ---- Fonction ajoutée par la branche feat/map ----
 
 void MainWindow::on_pushButton_clicked()
 {

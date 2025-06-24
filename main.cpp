@@ -1,41 +1,27 @@
-// #include "mainwindow.h"
-
-// #include <QApplication>
-
-// int main(int argc, char *argv[])
-// {
-//     QApplication a(argc, argv);
-//     MainWindow w;
-//     w.show();
-//     return a.exec();
-// }
+#include "mainwindow.h"
 #include <QApplication>
-#include <QMainWindow>
 #include <QMediaPlayer>
-#include <QMediaPlaylist>
-#include <QUrl>
+#include <QAudioOutput>
 
-int main(int argc, char *argv[]) {
+
+int main(int argc, char *argv[])
+{
     QApplication app(argc, argv);
 
-    QMainWindow window;
-    window.setWindowTitle("PacMan Neon");
+    QMediaPlayer *player = new QMediaPlayer;
+    QAudioOutput *audioOutput = new QAudioOutput;
 
-    // 🎵 Création d’un lecteur de musique
-    QMediaPlayer *player = new QMediaPlayer(&window);
+    player->setAudioOutput(audioOutput);
+    audioOutput->setVolume(0.5); // 50% de volume
 
-    // (Facultatif) Lire en boucle :
-    QMediaPlaylist *playlist = new QMediaPlaylist();
-    playlist->addMedia(QUrl::fromLocalFile("pacman_theme.mp3"));
-    playlist->setPlaybackMode(QMediaPlaylist::Loop);
-    player->setPlaylist(playlist);
+    player->setSource(QUrl("qrc:/music.mp3"));
+    player->setLoops(QMediaPlayer::Infinite); // Lecture en boucle
 
-    player->setVolume(50);
     player->play();
-
-    window.resize(800, 600);
-    window.show();
+    MainWindow w;
+    w.show();
 
     return app.exec();
 }
+
 

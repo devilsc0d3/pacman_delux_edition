@@ -1,6 +1,6 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-
+#include "optionwindow.h"
 #include <QMainWindow>
 
 QT_BEGIN_NAMESPACE
@@ -19,5 +19,7 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    OptionWindow *optionWindow;
 };
 #endif // MAINWINDOW_H
+

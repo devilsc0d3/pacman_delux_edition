@@ -10,7 +10,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets )
+find_package(Qt6 REQUIRED COMPONENTS Multimedia)
+
 
 set(PROJECT_SOURCES
         main.cpp
@@ -23,8 +25,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(sans_titre
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-
-        test.cpp
+        pacman.qrc
+        optionwindow.h optionwindow.cpp optionwindow.ui
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET sans_titre APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
@@ -44,7 +46,7 @@ else()
     endif()
 endif()
 
-target_link_libraries(sans_titre PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(sans_titre PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt6::Multimedia)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
@@ -67,9 +69,9 @@ install(TARGETS sans_titre
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-target_link_libraries(pacman PRIVATE Qt5::Widgets Qt5::Multimedia)
-
-
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(sans_titre)
 endif()
+
+
+cmake_minimum_required(VERSION 3.16)

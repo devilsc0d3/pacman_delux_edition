@@ -2,8 +2,16 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>267</width>
+    <height>304</height>
+   </rect>
+  </property>
   <property name="windowTitle">
-   <string>PacMan Neon</string>
+   <string>PacMan</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="styleSheet">
@@ -15,7 +23,7 @@
 QLabel {
     color: #FFFF00;
     font-size: 24px;
-    font-family: "Press Start 2P";
+    font-family: &quot;Press Start 2P&quot;;
     background: transparent;
     qproperty-alignment: AlignCenter;
 }
@@ -23,19 +31,17 @@ QLabel {
 QPushButton {
     color: #FFFF00;
     background-color: transparent;
-    font-family: "Press Start 2P";
+    font-family: &quot;Press Start 2P&quot;;
     font-size: 16px;
     padding: 12px 20px;
     border: 2px solid #FFFF00;
     border-radius: 4px;
     text-align: center;
-    box-shadow: 0 0 10px #FFFF00;
 }
 
 QPushButton:hover {
     color: #FF0040;
     border: 2px solid #FF0040;
-    box-shadow: 0 0 20px #FF0040;
 }
     </string>
    </property>
@@ -50,28 +56,28 @@ QPushButton:hover {
     <item>
      <layout class="QVBoxLayout" name="verticalLayout_buttons">
       <item>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="pushButtonStart">
         <property name="text">
          <string>START GAME</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="pushButtonRules">
         <property name="text">
          <string>RULES</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_2">
+       <widget class="QPushButton" name="pushButtonOption">
         <property name="text">
          <string>OPTIONS</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_3">
+       <widget class="QPushButton" name="pushButtonQuitter">
         <property name="text">
          <string>QUIT</string>
         </property>
@@ -81,7 +87,16 @@ QPushButton:hover {
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menubar"/>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>267</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources/>

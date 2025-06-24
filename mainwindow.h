@@ -2,6 +2,9 @@
 #define MAINWINDOW_H
 #include "optionwindow.h"
 #include <QMainWindow>
+#include "startwindow.h"
+#include "settingwindow.h"
+#include <QStackedWidget>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -19,7 +22,11 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    OptionWindow *optionWindow;
+    QStackedWidget *stackedWidget;
+    QWidget *pageMenu;
+    StartWindow *startPage;
+    OptionWindow *optionPage;
+    SettingWindow *settingPage;
 };
 #endif // MAINWINDOW_H
 

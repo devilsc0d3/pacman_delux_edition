@@ -19,6 +19,9 @@ set(PROJECT_SOURCES
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
+        optionwindow.h optionwindow.cpp optionwindow.ui
+        startwindow.h startwindow.cpp startwindow.ui
+        settingwindow.h settingwindow.cpp settingwindow.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

@@ -14,6 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
+   <!-- Widgets de la branche feat/Server -->
    <widget class="QLineEdit" name="lineEditName">
     <property name="geometry">
      <rect>
@@ -110,6 +111,21 @@
     </property>
     <property name="text">
      <string>Reload Lobby</string>
+    </property>
+   </widget>
+   
+   <!-- Widget de la branche feat/map -->
+   <widget class="QPushButton" name="pushButton">
+    <property name="geometry">
+     <rect>
+      <x>620</x>
+      <y>200</y>
+      <width>90</width>
+      <height>29</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Règles</string>
     </property>
    </widget>
   </widget>

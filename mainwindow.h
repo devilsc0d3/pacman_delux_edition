@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "lobbyclient.h"
+#include "lobbyclient.h" // Nécessaire pour le membre 'client'
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -19,16 +19,18 @@ public:
     ~MainWindow();
 
 private slots:
-
+    // Slots de la branche feat/Server
     void onCreateLobby();
     void onJoinLobby();
     void onLeaveLobby();
-
+    void onRefreshLobbies();
     void onConnectionSuccess();
     void onConnectionFailed(QString reason);
     void onLobbyUpdated(QString lobbyId, QStringList players);
     void onLobbyListReceived(QStringList lobbies);
-    void onRefreshLobbies();
+
+    // Slot de la branche feat/map
+    void on_pushButton_clicked();
 
 private:
     void startClient();
@@ -37,6 +39,4 @@ private:
     LobbyClient *client = nullptr;
 };
 
-
-
-#endif
+#endif // MAINWINDOW_H

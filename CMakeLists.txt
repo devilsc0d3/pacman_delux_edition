@@ -21,11 +21,25 @@ set(PROJECT_SOURCES
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-qt_add_executable(sans_titre
+    qt_add_executable(sans_titre
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        lobbyserver.h lobbyserver.cpp
-        lobbyclient.h lobbyclient.cpp
+        lobbyserver.h
+        lobbyserver.cpp
+        lobbyclient.h
+        lobbyclient.cpp
+        rulesdialog.h
+        rulesdialog.cpp
+        map.h
+        map.cpp
+        pacGum.h
+        pacGum.cpp
+        Bonus.h
+        Bonus.cpp
+        PacGumFactory.h
+        pacGumFactory.cpp
+        MapView.h
+        MapView.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET sans_titre APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

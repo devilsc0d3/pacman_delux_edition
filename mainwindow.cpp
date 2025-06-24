@@ -1,9 +1,13 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
+
+// Includes combinés des deux branches
 #include <QMessageBox>
 #include <QUrl>
 #include <QTimer>
 #include <QDebug>
+#include "rulesdialog.h" // Ajout de la branche feat/map
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -11,6 +15,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    // Code ajouté par la branche feat/Server
     connect(ui->buttonCreate, &QPushButton::clicked, this, &MainWindow::onCreateLobby);
     connect(ui->buttonJoin, &QPushButton::clicked, this, &MainWindow::onJoinLobby);
     connect(ui->buttonLeave, &QPushButton::clicked, this, &MainWindow::onLeaveLobby);
@@ -39,6 +44,8 @@ MainWindow::~MainWindow()
     delete ui;
     qDebug() << "MainWindow détruit.";
 }
+
+// ---- Fonctions ajoutées par la branche feat/Server ----
 
 void MainWindow::startClient()
 {
@@ -98,17 +105,20 @@ void MainWindow::onLeaveLobby()
 
 void MainWindow::onRefreshLobbies()
 {
-    if (client) {
-        qDebug() << "Demande manuelle de la liste des lobbies.";
-        client->requestLobbyList();
-    } else {
-        qDebug() << "Pas de client connecté pour rafraîchir la liste.";
+    // Note : le code original avait un `if (client)` qui empêchait de rafraîchir
+    // avant une première connexion. On l'adapte pour pouvoir se connecter et rafraîchir.
+    if (!client || client->state() != QAbstractSocket::ConnectedState) {
+        qDebug() << "Client non connecté, tentative de connexion pour rafraîchir.";
+        startClient();
     }
+    client->requestLobbyList();
 }
 
 void MainWindow::onConnectionSuccess()
 {
     qDebug() << "Connexion WebSocket réussie.";
+    // On peut demander la liste des lobbies dès la connexion réussie.
+    client->requestLobbyList();
 }
 
 void MainWindow::onConnectionFailed(QString reason)
@@ -142,4 +152,13 @@ void MainWindow::onLobbyListReceived(QStringList lobbies)
     }
 
     qDebug() << "Liste des lobbies reçue : " << lobbies;
+}
+
+
+// ---- Fonction ajoutée par la branche feat/map ----
+
+void MainWindow::on_pushButton_clicked()
+{
+    RulesDialog rulesDialog(this);
+    rulesDialog.exec();
 }

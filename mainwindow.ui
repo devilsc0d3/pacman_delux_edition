@@ -6,105 +6,134 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>267</width>
-    <height>304</height>
+    <width>800</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>PacMan</string>
+   <string>Lobby</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <property name="styleSheet">
-    <string notr="true">
-* {
-    background-color: black;
-}
-
-QLabel {
-    color: #FFFF00;
-    font-size: 24px;
-    font-family: &quot;Press Start 2P&quot;;
-    background: transparent;
-    qproperty-alignment: AlignCenter;
-}
-
-QPushButton {
-    color: #FFFF00;
-    background-color: transparent;
-    font-family: &quot;Press Start 2P&quot;;
-    font-size: 16px;
-    padding: 12px 20px;
-    border: 2px solid #FFFF00;
-    border-radius: 4px;
-    text-align: center;
-}
-
-QPushButton:hover {
-    color: #FF0040;
-    border: 2px solid #FF0040;
-}
-    </string>
-   </property>
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
-     <widget class="QStackedWidget" name="stackedWidget">
-      <property name="currentIndex">
-       <number>0</number>
-      </property>
-      <widget class="QWidget" name="pageMenu">
-       <layout class="QVBoxLayout" name="verticalLayout_main">
-        <item>
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>WELCOME TO PACMAN</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <layout class="QVBoxLayout" name="verticalLayout_buttons">
-          <item>
-           <widget class="QPushButton" name="pushButtonStart">
-            <property name="text">
-             <string>START GAME</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pushButtonRules">
-            <property name="text">
-             <string>RULES</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pushButtonOption">
-            <property name="text">
-             <string>OPTIONS</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pushButtonQuitter">
-            <property name="text">
-             <string>QUIT</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-       </layout>
-      </widget>
-     </widget>
-    </item>
-   </layout>
+   <!-- On garde l'interface complète du LOBBY -->
+   <widget class="QLineEdit" name="lineEditName">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>110</y>
+      <width>113</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Pseudo</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="buttonCreate">
+    <property name="geometry">
+     <rect>
+      <x>180</x>
+      <y>170</y>
+      <width>101</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Create Lobby</string>
+    </property>
+   </widget>
+   <widget class="QListWidget" name="listWidgetLobby">
+    <property name="geometry">
+     <rect>
+      <x>470</x>
+      <y>270</y>
+      <width>171</width>
+      <height>192</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEditLobbyId">
+    <property name="geometry">
+     <rect>
+      <x>430</x>
+      <y>110</y>
+      <width>113</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Lobby Name</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="buttonJoin">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>170</y>
+      <width>87</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Join Lobby</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="buttonLeave">
+    <property name="geometry">
+     <rect>
+      <x>460</x>
+      <y>170</y>
+      <width>91</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Leave Lobby</string>
+    </property>
+   </widget>
+   <widget class="QListWidget" name="listWidgetLobbies">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>270</y>
+      <width>256</width>
+      <height>192</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="buttonRefreshLobbies">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>470</y>
+      <width>101</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Reload Lobby</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton">
+    <property name="geometry">
+     <rect>
+      <x>620</x>
+      <y>200</y>
+      <width>90</width>
+      <height>29</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Règles</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>267</width>
-     <height>21</height>
+     <width>800</width>
+     <height>23</height>
     </rect>
    </property>
   </widget>

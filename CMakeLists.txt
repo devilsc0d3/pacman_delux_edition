@@ -9,27 +9,51 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# --- Résolution du conflit 1 : Composants Qt ---
+# On combine les composants des deux branches. On a besoin de WebSockets ET de Multimedia.
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets )
-find_package(Qt6 REQUIRED COMPONENTS Multimedia)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets WebSockets Multimedia)
 
 
+# --- Résolution du conflit 2 : Fichiers sources ---
+# On crée une liste de base avec TOUS les fichiers .cpp, .h et .ui
 set(PROJECT_SOURCES
         main.cpp
+        # Fenêtres du menu
+        startwindow.h startwindow.cpp startwindow.ui
+        optionwindow.h optionwindow.cpp optionwindow.ui
+        settingwindow.h settingwindow.cpp settingwindow.ui
+        # Fenêtre principale du lobby
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
-        optionwindow.h optionwindow.cpp optionwindow.ui
-        startwindow.h startwindow.cpp startwindow.ui
-        settingwindow.h settingwindow.cpp settingwindow.ui
+        # Fichiers du lobby/serveur
+        lobbyserver.h
+        lobbyserver.cpp
+        lobbyclient.h
+        lobbyclient.cpp
+        # Fichiers de la carte et du jeu
+        rulesdialog.h
+        rulesdialog.cpp
+        map.h
+        map.cpp
+        pacGum.h
+        pacGum.cpp
+        Bonus.h
+        Bonus.cpp
+        PacGumFactory.h
+        pacGumFactory.cpp
+        MapView.h
+        MapView.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(sans_titre
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
+        # On ajoute aussi le fichier de ressources de la branche menu
         pacman.qrc
-        optionwindow.h optionwindow.cpp optionwindow.ui
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET sans_titre APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
@@ -49,7 +73,13 @@ else()
     endif()
 endif()
 
-target_link_libraries(sans_titre PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt6::Multimedia)
+# --- Résolution du conflit 3 : Bibliothèques à lier ---
+# On lie TOUTES les bibliothèques nécessaires
+target_link_libraries(sans_titre PRIVATE
+    Qt${QT_VERSION_MAJOR}::Widgets
+    Qt${QT_VERSION_MAJOR}::WebSockets
+    Qt6::Multimedia
+  )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
@@ -76,5 +106,5 @@ if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(sans_titre)
 endif()
 
-
-cmake_minimum_required(VERSION 3.16)
+# --- Résolution du conflit 4 : Nettoyage de fin de fichier ---
+# On supprime la ligne cmake_minimum_required en trop.

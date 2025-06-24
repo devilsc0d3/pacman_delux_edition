@@ -1,11 +1,14 @@
-#include "mainwindow.h"
-
+// Exemple d'utilisation dans main.cpp
 #include <QApplication>
+#include "map.h" // Assurez-vous que map.h est inclus
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-    MainWindow w;
-    w.show();
-    return a.exec();
+    QApplication app(argc, argv);
+
+    PacManMap gameMap;
+    gameMap.setWindowTitle("PacMan Map");
+    gameMap.show();
+
+    return app.exec();
 }

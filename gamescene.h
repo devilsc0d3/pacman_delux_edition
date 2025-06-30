@@ -27,12 +27,12 @@ public:
     int getScore() const;
     void reloadLevel();
     QTimer* getGameTimer() const;
+    void gameOver(); // Déplacé ici pour être public
 
 signals:
     void levelWasCleared();
-    void pacmanWasKilled();
-    // La déclaration qui manquait
     void pelletWasEatenAt(const QPoint& gridPos);
+    void allPacmansDied();
 
 public slots:
     void updateFromServer(const GameState& state);
@@ -40,20 +40,18 @@ public slots:
     void levelCleared();
     void onPelletRemoved(const QPoint& gridPos);
     void resetLevelClient();
-    void finishDeathSequence();
 
 private slots:
     void updateGame();
     void onPelletEaten(QGraphicsItem* pelletItem);
     void onGhostEaten(Ghost* ghost);
     void onFrightenTimerTimeout();
-    void startDeathSequence();
+    void onPacmanDied();
 
 private:
     GameMap m_gameMap;
     QTimer *m_gameTimer;
     QTimer *m_frightenTimer;
-    QTimer *m_deathPauseTimer;
 
     QList<PacMan*> m_pacmans;
     QList<Ghost*> m_ghosts;
@@ -70,7 +68,7 @@ private:
     void updateScoreDisplay();
     void updateLivesDisplay();
     void resetLevel();
-    void gameOver();
+    // gameOver() a été déplacé vers public
 };
 
 #endif // GAMESCENE_H

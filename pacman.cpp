@@ -14,8 +14,8 @@ PacMan::PacMan(const GameMap& map)
     m_nextDirection(0, 0),
     m_speed(2.0f),
     m_playerId(-1),
-    m_lives(3),
-    m_isDying(false)
+    m_lives(1),
+    m_isActive(true)
 {
     setBrush(QBrush(Qt::magenta));
     setPen(Qt::NoPen);
@@ -23,19 +23,19 @@ PacMan::PacMan(const GameMap& map)
 
 void PacMan::setDirection(const QPoint& direction)
 {
-    if (m_isDying) return;
+    if (!m_isActive) return;
     m_nextDirection = direction;
 }
 
 void PacMan::advance(int phase)
 {
-    if (m_isDying || phase == 0) return;
+    if (!m_isActive || phase == 0) return;
     handleCollisions();
 }
 
 void PacMan::handleCollisions()
 {
-    if (m_isDying) return;
+    if (!m_isActive) return;
 
     m_gridPosition.setX(static_cast<int>(round(x() / TILE_SIZE)));
     m_gridPosition.setY(static_cast<int>(round(y() / TILE_SIZE)));
@@ -58,6 +58,8 @@ void PacMan::handleCollisions()
 
     const QList<QGraphicsItem*> collisions = collidingItems();
     for (QGraphicsItem* item : collisions) {
+        if (!item->isVisible()) continue;
+
         if (item->type() == GhostType) {
             Ghost* ghost = static_cast<Ghost*>(item);
             if (ghost->isFrightened()) {
@@ -71,28 +73,30 @@ void PacMan::handleCollisions()
                 itemType == (QGraphicsItem::UserType + 4))
             {
                 emit pelletEaten(item);
+                // On retire la ligne item->setVisible(false); qui posait problème
             }
         }
     }
 }
-
 void PacMan::die()
 {
-    if (m_isDying) return;
-    m_isDying = true;
-    m_lives--;
-    m_direction = QPoint(0, 0);
-    m_nextDirection = QPoint(0, 0);
+    if (!m_isActive) return;
+    m_isActive = false;
+    m_lives = 0;
+    setVisible(false);
     emit pacmanDied();
 }
 
 void PacMan::resetState()
 {
-    m_isDying = false;
+    m_isActive = true;
+    m_lives = 1;
+    setVisible(true);
     m_direction = QPoint(0, 0);
     m_nextDirection = QPoint(0, 0);
 }
 
+bool PacMan::isActive() const { return m_isActive; }
 int PacMan::lives() const { return m_lives; }
 void PacMan::setLives(int newLives) { m_lives = newLives; }
 void PacMan::setPlayerId(int id) { m_playerId = id; }

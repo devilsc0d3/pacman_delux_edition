@@ -1,4 +1,4 @@
-/// networkprotocol.h
+// networkprotocol.h
 #ifndef NETWORKPROTOCOL_H
 #define NETWORKPROTOCOL_H
 
@@ -7,14 +7,14 @@
 #include <QDataStream>
 #include <QList>
 
+// Types de messages pour savoir ce qu'on envoie/reçoit
 enum MessageType : quint8 {
     Msg_Invalid = 0,
     Msg_GameState,
     Msg_PlayerInput,
     Msg_RoleAssignment,
     Msg_LevelCleared,
-    Msg_PelletEaten,
-    Msg_ResetLevel // Nouveau message
+    Msg_PelletEaten
 };
 
 // Structure pour une commande de joueur
@@ -32,6 +32,7 @@ struct RoleAssignment {
 struct CharacterState {
     int id;
     QPointF position;
+    bool isFrightened; // Ajout pour synchroniser l'état des fantômes
 };
 
 // Structure pour l'état complet du jeu à un instant T
@@ -67,11 +68,11 @@ inline QDataStream& operator>>(QDataStream& stream, RoleAssignment& role) {
 }
 
 inline QDataStream& operator<<(QDataStream& stream, const CharacterState& state) {
-    stream << state.id << state.position;
+    stream << state.id << state.position << state.isFrightened;
     return stream;
 }
 inline QDataStream& operator>>(QDataStream& stream, CharacterState& state) {
-    stream >> state.id >> state.position;
+    stream >> state.id >> state.position >> state.isFrightened;
     return stream;
 }
 

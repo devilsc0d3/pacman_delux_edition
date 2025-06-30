@@ -12,13 +12,14 @@ GameServer::GameServer(QObject *parent)
     connect(m_broadcastTimer, &QTimer::timeout, this, &GameServer::updateAndBroadcastState);
     connect(m_gameScene, &GameScene::levelWasCleared, this, &GameServer::onLevelCleared);
     connect(m_gameScene, &GameScene::pelletWasEatenAt, this, &GameServer::onBroadcastPelletEaten);
-    connect(m_gameScene, &GameScene::pacmanWasKilled, this, &GameServer::onPacmanKilled);
+    connect(m_gameScene, &GameScene::allPacmansDied, this, &GameServer::onAllPacmansDied);
 }
 
 void GameServer::startServer(quint16 port)
 {
     if (listen(QHostAddress::Any, port)) {
         qDebug() << "[Serveur] Serveur démarré et à l'écoute sur le port" << port;
+        // On démarre la logique de jeu et le broadcast immédiatement pour les tests
         m_gameScene->startGame();
         m_broadcastTimer->start(1000 / 30);
     } else {
@@ -30,6 +31,9 @@ void GameServer::incomingConnection(qintptr socketDescriptor)
 {
     if (m_clients.size() >= 4) {
         qDebug() << "[Serveur] Tentative de connexion refusée: partie pleine.";
+        QTcpSocket socket;
+        socket.setSocketDescriptor(socketDescriptor);
+        socket.disconnectFromHost();
         return;
     }
     qDebug() << "[Serveur] Nouvelle connexion, assignation du joueur ID:" << m_nextPlayerId;
@@ -65,6 +69,8 @@ void GameServer::incomingConnection(qintptr socketDescriptor)
     connect(clientSocket, &QTcpSocket::readyRead, this, [=]() {
         handleClientData(clientSocket);
     });
+
+    // La condition de démarrage à 4 joueurs est retirée pour l'instant.
 }
 
 void GameServer::updateAndBroadcastState()
@@ -127,24 +133,6 @@ void GameServer::onLevelCleared()
     });
 }
 
-void GameServer::onPacmanKilled()
-{
-    qDebug() << "[Serveur] Un Pac-Man est mort. Notification de reset.";
-    QByteArray block;
-    QDataStream out(&block, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_6_0);
-    out << static_cast<quint8>(Msg_ResetLevel);
-    for (const auto& clientInfo : m_clients) {
-        clientInfo.socket->write(block);
-    }
-
-    m_gameScene->getGameTimer()->stop();
-    m_broadcastTimer->stop();
-    QTimer::singleShot(2000, this, [=](){
-        m_gameScene->finishDeathSequence();
-    });
-}
-
 void GameServer::onBroadcastPelletEaten(const QPoint &gridPos)
 {
     PelletEatenEvent event;
@@ -156,4 +144,12 @@ void GameServer::onBroadcastPelletEaten(const QPoint &gridPos)
     for (const auto& clientInfo : m_clients) {
         clientInfo.socket->write(block);
     }
+}
+
+void GameServer::onAllPacmansDied()
+{
+    qDebug() << "[Serveur] Tous les Pac-Man sont morts. GAME OVER.";
+    m_gameScene->gameOver();
+    m_gameScene->getGameTimer()->stop();
+    m_broadcastTimer->stop();
 }

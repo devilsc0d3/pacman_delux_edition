@@ -78,10 +78,7 @@ void GameClient::onReadyRead()
             in >> event;
             emit pelletRemoved(event.gridPosition);
         }
-        else if (static_cast<MessageType>(messageType) == Msg_ResetLevel) {
-            qDebug() << "[Client] Reçu message de réinitialisation de niveau.";
-            emit resetLevelOnClient();
-        }
+        // ON SUPPRIME LE CAS Msg_ResetLevel QUI N'EXISTE PLUS
         else {
             qWarning() << "[Client] Type de message inconnu ou corrompu reçu:" << messageType;
             m_socket->readAll();

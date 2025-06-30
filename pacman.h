@@ -22,7 +22,9 @@ public:
     void advance(int phase) override;
 
     void die();
-    void resetState();
+    void resetState(); // Pour réinitialiser le Pac-Man pour un nouveau niveau
+    bool isActive() const; // Pour savoir s'il est encore en jeu
+
     int lives() const;
     void setLives(int newLives);
 
@@ -46,7 +48,7 @@ private:
 
     int m_playerId;
     int m_lives;
-    bool m_isDying;
+    bool m_isActive; // Est-ce que le Pac-Man est vivant et en jeu
 
     void handleCollisions();
 };

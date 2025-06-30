@@ -31,12 +31,10 @@ private:
     const GameMap& m_gameMap;
     QPoint m_gridPosition;
     QPoint m_direction;
+    QPoint m_nextDirection; // Pour le contrôle joueur (comme Pac-Man)
     float m_speed;
     GhostState m_state;
     int m_playerId;
-    bool m_isPlayerControlled;
-
-    void updateDirection();
 };
 
 #endif // GHOST_H

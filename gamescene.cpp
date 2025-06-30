@@ -15,7 +15,6 @@ GameScene::GameScene(QObject *parent)
     : QGraphicsScene{parent},
     m_gameTimer(nullptr),
     m_frightenTimer(nullptr),
-    m_deathPauseTimer(nullptr),
     m_score(0),
     m_pelletCount(0),
     m_scoreText(nullptr),
@@ -28,9 +27,6 @@ GameScene::GameScene(QObject *parent)
     m_frightenTimer = new QTimer(this);
     m_frightenTimer->setSingleShot(true);
     connect(m_frightenTimer, &QTimer::timeout, this, &GameScene::onFrightenTimerTimeout);
-    m_deathPauseTimer = new QTimer(this);
-    m_deathPauseTimer->setSingleShot(true);
-    connect(m_deathPauseTimer, &QTimer::timeout, this, &GameScene::finishDeathSequence);
     loadMap();
     setupCharacters();
 }
@@ -42,28 +38,25 @@ QTimer* GameScene::getGameTimer() const { return m_gameTimer; }
 
 void GameScene::updateFromServer(const GameState &state)
 {
+    for (PacMan* p : m_pacmans) { p->setVisible(false); }
     for(const CharacterState& pacmanState : state.pacmanStates) {
-        PacMan* targetPacman = nullptr;
-        for(PacMan* p : m_pacmans) {
-            if (p->getPlayerId() == pacmanState.id) {
-                targetPacman = p;
+        for(PacMan* pacman : m_pacmans) {
+            if (pacman->getPlayerId() == pacmanState.id) {
+                pacman->setPos(pacmanState.position);
+                pacman->setVisible(true);
                 break;
             }
-        }
-        if (targetPacman) {
-            targetPacman->setPos(pacmanState.position);
         }
     }
+
     for(const CharacterState& ghostState : state.ghostStates) {
-        Ghost* targetGhost = nullptr;
-        for(Ghost* g : m_ghosts) {
-            if (g->getPlayerId() == ghostState.id) {
-                targetGhost = g;
+        for(Ghost* ghost : m_ghosts) {
+            if (ghost->getPlayerId() == ghostState.id) {
+                ghost->setPos(ghostState.position);
+                // Mettre à jour l'état visuel du fantôme sur le client
+                ghost->setFrightened(ghostState.isFrightened);
                 break;
             }
-        }
-        if (targetGhost) {
-            targetGhost->setPos(ghostState.position);
         }
     }
     m_score = state.score;
@@ -92,22 +85,11 @@ void GameScene::setPacmanDirection(int playerID, const QPoint& direction)
 void GameScene::onPelletEaten(QGraphicsItem* pelletItem)
 {
     if (!pelletItem || !items().contains(pelletItem)) return;
-
     QPoint gridPos(-1,-1);
     for(auto it = m_pelletItems.constBegin(); it != m_pelletItems.constEnd(); ++it) {
-        if (it.value() == pelletItem) {
-            gridPos = it.key();
-            break;
-        }
+        if (it.value() == pelletItem) { gridPos = it.key(); break; }
     }
-
-    if (gridPos == QPoint(-1,-1)) {
-        qWarning() << "[Serveur] Bille mangée non trouvée dans la table de hachage !";
-        // On supprime quand même l'item pour éviter les bugs, mais on ne peut pas notifier
-        delete pelletItem;
-        return;
-    }
-
+    if (gridPos == QPoint(-1,-1)) { delete pelletItem; return; }
     int itemType = pelletItem->data(0).toInt();
     if (itemType == PelletType) m_score += 10;
     else if (itemType == PowerPelletType) {
@@ -116,29 +98,12 @@ void GameScene::onPelletEaten(QGraphicsItem* pelletItem)
         m_frightenTimer->start(7000);
     }
     updateScoreDisplay();
-
     m_pelletItems.remove(gridPos);
     delete pelletItem;
-
     emit pelletWasEatenAt(gridPos);
-
     m_pelletCount--;
     if (m_pelletCount <= 0) {
         emit levelWasCleared();
-    }
-}
-
-void GameScene::onPelletRemoved(const QPoint &gridPos)
-{
-    qDebug() << "[Client] Tentative de suppression de la bille à" << gridPos;
-    if (m_pelletItems.contains(gridPos)) {
-        QGraphicsItem* pellet = m_pelletItems.take(gridPos);
-        if (pellet) {
-            delete pellet;
-            qDebug() << "[Client] Bille supprimée avec succès.";
-        }
-    } else {
-        qWarning() << "[Client] Impossible de trouver la bille à supprimer à la position" << gridPos;
     }
 }
 
@@ -162,35 +127,33 @@ void GameScene::onFrightenTimerTimeout()
     }
 }
 
-void GameScene::startDeathSequence()
+void GameScene::onPacmanDied()
 {
-    PacMan* deadPacman = qobject_cast<PacMan*>(sender());
-    if(deadPacman) { }
-    m_gameTimer->stop();
-    m_deathPauseTimer->start(2000);
-    emit pacmanWasKilled();
-}
-
-void GameScene::finishDeathSequence()
-{
-    if (!m_pacmans.isEmpty() && m_pacmans.first()->lives() > 0) {
-        resetLevel();
-        m_gameTimer->start(1000/60);
-    } else {
-        gameOver();
-    }
     updateLivesDisplay();
+    bool allDead = true;
+    for (PacMan* p : m_pacmans) {
+        if (p->isActive()) {
+            allDead = false;
+            break;
+        }
+    }
+    if (allDead) {
+        emit allPacmansDied();
+    }
 }
 
 void GameScene::updateScoreDisplay() { if(m_scoreText) m_scoreText->setPlainText(QString("Score: %1").arg(m_score)); }
-void GameScene::updateLivesDisplay() { if(!m_pacmans.isEmpty() && m_livesText) m_livesText->setPlainText(QString("Vies J1: %1").arg(m_pacmans.first()->lives())); }
 
-void GameScene::resetLevelClient()
+void GameScene::updateLivesDisplay()
 {
-    // Le client recharge toute la carte et réinitialise les personnages
-    loadMap();
-    setupCharacters();
+    if(m_livesText) {
+        QString livesString = "Vies: ";
+        if (m_pacmans.size() > 0) livesString += "J1: " + QString(m_pacmans[0]->isActive() ? "❤️" : "💀");
+        if (m_pacmans.size() > 1) livesString += " | J2: " + QString(m_pacmans[1]->isActive() ? "❤️" : "💀");
+        m_livesText->setPlainText(livesString);
+    }
 }
+
 void GameScene::resetLevel()
 {
     for(PacMan* pacman : m_pacmans) {
@@ -206,6 +169,7 @@ void GameScene::resetLevel()
             ghost->setFrightened(false);
         }
     }
+    updateLivesDisplay();
 }
 
 void GameScene::gameOver()
@@ -237,6 +201,23 @@ void GameScene::reloadLevel()
     resetLevel();
 }
 
+void GameScene::resetLevelClient()
+{
+    qDebug() << "[Client] Réinitialisation du niveau.";
+    loadMap();
+    setupCharacters();
+}
+
+void GameScene::onPelletRemoved(const QPoint &gridPos)
+{
+    if (m_pelletItems.contains(gridPos)) {
+        QGraphicsItem* pellet = m_pelletItems.take(gridPos);
+        if (pellet) {
+            delete pellet;
+        }
+    }
+}
+
 void GameScene::setupCharacters()
 {
     for (int i = 0; i < 2; ++i) {
@@ -249,10 +230,9 @@ void GameScene::setupCharacters()
         addItem(pacman);
         connect(pacman, &PacMan::pelletEaten, this, &GameScene::onPelletEaten, Qt::QueuedConnection);
         connect(pacman, &PacMan::ateGhost, this, &GameScene::onGhostEaten, Qt::QueuedConnection);
-        connect(pacman, &PacMan::pacmanDied, this, &GameScene::startDeathSequence, Qt::QueuedConnection);
+        connect(pacman, &PacMan::pacmanDied, this, &GameScene::onPacmanDied);
     }
     if (!m_pacmans.isEmpty()) updateLivesDisplay();
-
     for (int i = 0; i < 2; ++i) {
         Ghost* ghost = new Ghost(m_gameMap);
         ghost->setPlayerId(i + 2);
@@ -332,10 +312,13 @@ QList<CharacterState> GameScene::getPacmanStates() const
 {
     QList<CharacterState> states;
     for(PacMan* pacman : m_pacmans) {
-        CharacterState s;
-        s.id = pacman->getPlayerId();
-        s.position = pacman->pos();
-        states.append(s);
+        if (pacman->isActive()) {
+            CharacterState s;
+            s.id = pacman->getPlayerId();
+            s.position = pacman->pos();
+            s.isFrightened = false; // Un Pac-Man n'est jamais effrayé
+            states.append(s);
+        }
     }
     return states;
 }
@@ -347,6 +330,7 @@ QList<CharacterState> GameScene::getGhostStates() const
         CharacterState s;
         s.id = ghost->getPlayerId();
         s.position = ghost->pos();
+        s.isFrightened = ghost->isFrightened(); // On ajoute l'état
         states.append(s);
     }
     return states;

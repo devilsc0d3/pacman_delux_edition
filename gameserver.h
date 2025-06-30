@@ -23,7 +23,7 @@ private slots:
     void updateAndBroadcastState();
     void onLevelCleared();
     void onBroadcastPelletEaten(const QPoint& gridPos);
-    void onPacmanKilled(); // La déclaration qui manquait
+    void onAllPacmansDied(); // Le slot pour le Game Over
 
 protected:
     void incomingConnection(qintptr socketDescriptor) override;

@@ -31,35 +31,36 @@ void Ghost::advance(int phase)
     m_gridPosition.setX(static_cast<int>(round(x() / TILE_SIZE)));
     m_gridPosition.setY(static_cast<int>(round(y() / TILE_SIZE)));
 
-    bool onGrid = (fmod(x(), TILE_SIZE) == 0) && (fmod(y(), TILE_SIZE) == 0);
-    if (onGrid && m_nextDirection != QPoint(0, 0)) {
-        QPoint nextGridPos = m_gridPosition + m_nextDirection;
-        if (m_gameMap.cellType(nextGridPos) != Wall) {
-            m_direction = m_nextDirection;
-            m_nextDirection = QPoint(0, 0);
-        }
-    }
-    if (onGrid && m_direction != QPoint(0, 0)) {
-        QPoint nextGridPos = m_gridPosition + m_direction;
-        if (m_gameMap.cellType(nextGridPos) == Wall) {
-            m_direction = QPoint(0, 0);
-        }
+    // 1. Permettre le demi-tour instantané
+    if (m_nextDirection == -m_direction && m_nextDirection != QPoint(0, 0)) {
+        m_direction = m_nextDirection;
+        m_nextDirection = QPoint(0, 0);
     }
 
-    // Correction collision : on vérifie le prochain déplacement
+    // 2. Si la direction demandée est possible (pas de mur), l'appliquer dès que possible
+    QPointF nextPos = QPointF(x() + m_nextDirection.x() * m_speed, y() + m_nextDirection.y() * m_speed);
+    int nextGridX = static_cast<int>(round(nextPos.x() / TILE_SIZE));
+    int nextGridY = static_cast<int>(round(nextPos.y() / TILE_SIZE));
+    QPoint nextGridPos(nextGridX, nextGridY);
+    if (m_nextDirection != QPoint(0, 0) && m_gameMap.cellType(nextGridPos) != Wall) {
+        m_direction = m_nextDirection;
+        m_nextDirection = QPoint(0, 0);
+    }
+
+    // 3. Si la direction actuelle mène à un mur, on stoppe
+    QPointF afterMove = QPointF(x() + m_direction.x() * m_speed, y() + m_direction.y() * m_speed);
+    int afterGridX = static_cast<int>(round(afterMove.x() / TILE_SIZE));
+    int afterGridY = static_cast<int>(round(afterMove.y() / TILE_SIZE));
+    QPoint afterGridPos(afterGridX, afterGridY);
+    if (m_direction != QPoint(0, 0) && m_gameMap.cellType(afterGridPos) == Wall) {
+        setPos(m_gridPosition.x() * TILE_SIZE, m_gridPosition.y() * TILE_SIZE);
+        m_direction = QPoint(0, 0);
+        return;
+    }
+
+    // 4. Appliquer le mouvement
     if (m_direction != QPoint(0, 0)) {
-        qreal nextX = x() + m_direction.x() * m_speed;
-        qreal nextY = y() + m_direction.y() * m_speed;
-        int nextGridX = static_cast<int>(round(nextX / TILE_SIZE));
-        int nextGridY = static_cast<int>(round(nextY / TILE_SIZE));
-        QPoint nextGridPos(nextGridX, nextGridY);
-        if (m_gameMap.cellType(nextGridPos) == Wall) {
-            // On s'aligne sur la grille et on stoppe
-            setPos(m_gridPosition.x() * TILE_SIZE, m_gridPosition.y() * TILE_SIZE);
-            m_direction = QPoint(0, 0);
-            return;
-        }
-        setPos(nextX, nextY);
+        setPos(x() + m_direction.x() * m_speed, y() + m_direction.y() * m_speed);
     }
 }
 

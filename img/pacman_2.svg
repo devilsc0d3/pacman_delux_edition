@@ -1,0 +1,5 @@
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Pac-Man bouche ouverte classique -->
+  <path d="M 100 100 L 164.14 135.86 A 80 80 0 1 1 164.14 64.14 Z" 
+        fill="#FFD700"/>
+</svg>

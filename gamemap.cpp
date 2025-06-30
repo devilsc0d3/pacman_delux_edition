@@ -32,8 +32,8 @@ void GameMap::initializeMap()
         "W..........................W",
         "WWWWWW.WW.WWWWWWWW.WW.WWWWWW",
         "WWWWWW.WW.WWWWWWWW.WW.WWWWWW", // Maison des fantômes
-        "W......WW..W    W..WW......W",
-        "W.WWW.WW...WG H  ...WW.WWW.W", // Fantômes dans la maison
+        "W......WW..W     ..WW......W",
+        "W.WWW.WW...WG H W...WW.WWW.W", // Fantômes dans la maison
         "W.....WWWW.W    W.WWWW.....W",
         "WWWWW.WWWW.WWWWWW.WWWW.WWWWW",
         "W..........................W",

@@ -45,7 +45,11 @@ void GameView::keyPressEvent(QKeyEvent *event)
         return;
     }
 
-    // Émettre un signal pour dire que le joueur 0 (pour l'instant) a donné une direction
-    // Le playerID sera géré plus tard par le serveur.
-    emit directionInput(0, direction);
+    // Utiliser le playerID courant
+    emit directionInput(m_playerId, direction);
+}
+
+void GameView::setPlayerId(int id)
+{
+    m_playerId = id;
 }

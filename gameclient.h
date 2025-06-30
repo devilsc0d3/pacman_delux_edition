@@ -14,6 +14,7 @@ public:
     explicit GameClient(QObject *parent = nullptr);
     void connectToServer(const QString& hostAddress, quint16 port);
     void sendPlayerInput(const QPoint& direction);
+    int getPlayerId() const { return m_myPlayerId; }
 
 signals:
     void connected();

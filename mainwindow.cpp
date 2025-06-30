@@ -100,8 +100,10 @@ void MainWindow::switchToGameView()
         connect(m_client, &GameClient::gameStateReceived, m_gameScene, &GameScene::updateFromServer);
         connect(m_client, &GameClient::levelClearedOnClient, m_gameScene, &GameScene::levelCleared);
         connect(m_client, &GameClient::pelletRemoved, m_gameScene, &GameScene::onPelletRemoved);
-        // La ligne est maintenant à sa place, à l'intérieur du bloc 'if'.
         connect(m_client, &GameClient::resetLevelOnClient, m_gameScene, &GameScene::resetLevelClient);
+        connect(m_client, &GameClient::gameStateReceived, this, [=](const GameState&) {
+            m_gameView->setPlayerId(m_client->getPlayerId());
+        });
     }
 
     connect(m_gameView, &GameView::directionInput, this, [=](int playerID, QPoint direction) {

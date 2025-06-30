@@ -57,27 +57,40 @@ void PacMan::handleCollisions()
     setPos(x() + m_direction.x() * m_speed, y() + m_direction.y() * m_speed);
 
     const QList<QGraphicsItem*> collisions = collidingItems();
+    bool ateFrightenedGhost = false;
     for (QGraphicsItem* item : collisions) {
         if (!item->isVisible()) continue;
-
         if (item->type() == GhostType) {
             Ghost* ghost = static_cast<Ghost*>(item);
             if (ghost->isFrightened()) {
                 emit ateGhost(ghost);
-            } else {
-                die();
-            }
-        } else {
-            int itemType = item->data(0).toInt();
-            if (itemType == (QGraphicsItem::UserType + 3) ||
-                itemType == (QGraphicsItem::UserType + 4))
-            {
-                emit pelletEaten(item);
-                // On retire la ligne item->setVisible(false); qui posait problème
+                ateFrightenedGhost = true;
             }
         }
     }
+    if (!ateFrightenedGhost) {
+        for (QGraphicsItem* item : collisions) {
+            if (!item->isVisible()) continue;
+            if (item->type() == GhostType) {
+                Ghost* ghost = static_cast<Ghost*>(item);
+                if (!ghost->isFrightened()) {
+                    die();
+                    break;
+                }
+            }
+        }
+    }
+    for (QGraphicsItem* item : collisions) {
+        if (!item->isVisible()) continue;
+        int itemType = item->data(0).toInt();
+        if (itemType == (QGraphicsItem::UserType + 3) ||
+            itemType == (QGraphicsItem::UserType + 4))
+        {
+            emit pelletEaten(item);
+        }
+    }
 }
+
 void PacMan::die()
 {
     if (!m_isActive) return;

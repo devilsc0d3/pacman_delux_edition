@@ -7,6 +7,12 @@
 #include <QFont>
 #include <QDebug>
 #include "networkprotocol.h"
+#include <QDialog>
+#include <QPushButton>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QApplication>
+#include <QGraphicsProxyWidget>
 
 const int PelletType = QGraphicsItem::UserType + 3;
 const int PowerPelletType = QGraphicsItem::UserType + 4;
@@ -139,6 +145,7 @@ void GameScene::onPacmanDied()
     }
     if (allDead) {
         emit allPacmansDied();
+        gameOver();
     }
 }
 
@@ -175,12 +182,48 @@ void GameScene::resetLevel()
 void GameScene::gameOver()
 {
     m_gameTimer->stop();
+    // Overlay semi-transparent
+    QGraphicsRectItem* overlay = new QGraphicsRectItem(sceneRect());
+    overlay->setBrush(QBrush(QColor(0, 0, 0, 180)));
+    overlay->setPen(Qt::NoPen);
+    overlay->setZValue(1000);
+    addItem(overlay);
+    // Texte Game Over centré
     QGraphicsTextItem* gameOverText = new QGraphicsTextItem("GAME OVER");
     gameOverText->setDefaultTextColor(Qt::red);
-    gameOverText->setFont(QFont("Arial", 40, QFont::Bold));
-    gameOverText->setPos( (sceneRect().width() - gameOverText->boundingRect().width()) / 2,
-                         (sceneRect().height() - gameOverText->boundingRect().height()) / 2 - TILE_SIZE * 2);
+    gameOverText->setFont(QFont("Courier New", 48, QFont::Bold));
+    QRectF textRect = gameOverText->boundingRect();
+    gameOverText->setPos((sceneRect().width() - textRect.width()) / 2, (sceneRect().height() - textRect.height()) / 2 - 60);
+    gameOverText->setZValue(1001);
     addItem(gameOverText);
+    // Boutons
+    QPushButton* restartButton = new QPushButton("Relancer");
+    QPushButton* quitButton = new QPushButton("Quitter");
+    restartButton->setStyleSheet("background-color: #000000; color: #FFFF00; border: 2px solid #0000FF; padding: 10px 20px; font-family: 'Courier New', Courier, monospace; font-size: 16px; font-weight: bold;");
+    quitButton->setStyleSheet("background-color: #000000; color: #FFFF00; border: 2px solid #0000FF; padding: 10px 20px; font-family: 'Courier New', Courier, monospace; font-size: 16px; font-weight: bold;");
+    QGraphicsProxyWidget* restartProxy = addWidget(restartButton);
+    QGraphicsProxyWidget* quitProxy = addWidget(quitButton);
+    restartProxy->setZValue(1002);
+    quitProxy->setZValue(1002);
+    // Positionnement des boutons
+    qreal btnY = (sceneRect().height()) / 2 + 30;
+    restartProxy->setPos((sceneRect().width() / 2) - 140, btnY);
+    quitProxy->setPos((sceneRect().width() / 2) + 40, btnY);
+    // Connexions
+    QObject::connect(quitButton, &QPushButton::clicked, qApp, &QApplication::quit);
+    QObject::connect(restartButton, &QPushButton::clicked, this, [=]() {
+        // Nettoyer l'overlay et relancer le niveau
+        removeItem(overlay);
+        removeItem(gameOverText);
+        removeItem(restartProxy);
+        removeItem(quitProxy);
+        delete overlay;
+        delete gameOverText;
+        restartProxy->deleteLater();
+        quitProxy->deleteLater();
+        this->reloadLevel();
+        this->startGame();
+    });
 }
 
 void GameScene::levelCleared()

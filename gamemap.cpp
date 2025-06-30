@@ -13,33 +13,33 @@ void GameMap::initializeMap()
     QString mapString[MAP_HEIGHT] = {
         "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
         "W............WW............W",
+        "W.WWWW.WW.WW.WW.WW.WW.WWWW.W",
+        "W...oW.W...W.WW.W...W.Wo...W",
         "W.WWWW.WWWWW.WW.WWWWW.WWWW.W",
-        "WoWWWW.WWWWW.WW.WWWWW.WWWWoW",
-        "W.WWWW.WWWWW.WW.WWWWW.WWWW.W",
-        "W..........................W",
-        "W.WWWW.WW.WWWWWW.WW.WWWW.W",
-        "W.WWWW.WW.WWWWWW.WW.WWWW.W",
+        "W....P.............Q.......W", // P et Q (Pac-Man)
+        "W.WWWW.WW.WW.WW.WW.WW.WWWW.W",
+        "W.W.WW.WW.WW.WW.WW.WW.WW/W.W",
         "W......WW....WW....WW......W",
-        "WWWWWW.WWWWW.WW.WWWWW.WWWWWW",
-        "     W.WWWWW.WW.WWWWW.W     ",
-        "     W.WW         WW.W     ",
-        "     W.WW WWWWWWW WW.W     ",
-        "WWWWWW.WW W G H W WW.WWWWWW", // Fantômes G, H
-        "        . W   W .        ", // Maison des fantômes vide de Pac-Man
-        "WWWWWW.WW W   W W WW.WWWWWW", // Retrait de Q ici
-        "     W.WW WWWWWWW WW.W     ",
-        "     W.WW         WW.W     ",
-        "WWWWWW.WW.WWWWWWW.WW.WWWWWW",
-        "W............WW............W",
+        "WWWWWW.WW.WWWWWWWW.WW.WWWWWW",
+        "W..........................W",
+        "W..WWWWW..WWWWWW..WWWWWW...W",  // Début C P P alignés
+        "W..WW.....WW  WW..WW  WW...W",  // C P P
+        "W..WW.....WW  WW..WW  WW...W",  // C P P
+        "W..WW.....WWWWWW..WWWWWW...W",  // C P P (barres horizontales des P)
+        "W..WW.....WW......WW.......W",  // C P P
+        "W..WW.....WW......WW.......W",  // C P P
+        "W..WWWWW..WW......WW.......W",  // Fin C P P
+        "W..........................W",
+        "WWWWWW.WW.WWWWWWWW.WW.WWWWWW",
+        "WWWWWW.WW.WWWWWWWW.WW.WWWWWW", // Maison des fantômes
+        "W......WW..W    W..WW......W",
+        "W.WWW.WW...WG H  ...WW.WWW.W", // Fantômes dans la maison
+        "W.....WWWW.W    W.WWWW.....W",
+        "WWWWW.WWWW.WWWWWW.WWWW.WWWWW",
+        "W..........................W",
         "W.WWWW.WWWWW.WW.WWWWW.WWWW.W",
-        "WoWWWW.WWWWW.WW.WWWWW.WWWWoW",
-        "W...WW................WW...W",
-        "WWW.WW.WW.WWWWWW.WW.WW.WWW",
-        "WWW.WW.WW.WWWWWW.WW.WW.WWW",
-        "W....P.........Q...........W", // <-- LIGNE MODIFIÉE : P et Q sur la même ligne
-        "W.WWWW.WWWWW.WW.WWWWW.WWWW.W",
-        "W.WWWW.WWWWW.WW.WWWWW.WWWW.W",
-        "W............WW............W",
+        "W...oW.......WW.......Wo...W",
+        "W.WWWW.WW.WWWWWWWW.WW.WWWW.W",
         "W..........................W",
         "WWWWWWWWWWWWWWWWWWWWWWWWWWWW"
     };

@@ -88,9 +88,9 @@ void Ghost::setPlayerId(int id)
     m_playerId = id;
     if (m_state != Frightened) {
         // Couleurs par défaut pour les 4 joueurs
-        if (id == 0) setBrush(QBrush(Qt::magenta)); // Pac-Man 1
-        if (id == 1) setBrush(QBrush(QColor(255, 182, 193))); // Pac-Man 2
-        if (id == 2) setBrush(QBrush(Qt::red)); // Fantôme 1
+        if (id == 0) setBrush(QBrush(Qt::yellow)); // Pac-Man 1
+        if (id == 1) setBrush(QBrush(Qt::yellow)); // Pac-Man 2
+        if (id == 2) setBrush(QBrush(Qt::cyan)); // Fantôme 1
         if (id == 3) setBrush(QBrush(Qt::cyan)); // Fantôme 2
     }
 }

@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file alias="music.mp3">music/music.mp3</file>
+    </qresource>
+</RCC>

@@ -6,6 +6,7 @@
 #include "gameclient.h"
 #include "gamescene.h"
 #include "gameview.h"
+#include "rulesdialog.h"
 
 #include <QInputDialog>
 #include <QMessageBox>
@@ -13,6 +14,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QDebug>
+#include <QLabel>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -20,11 +22,13 @@ MainWindow::MainWindow(QWidget *parent)
     , m_menuWidget(nullptr)
     , m_hostButton(nullptr)
     , m_joinButton(nullptr)
+    , m_rulesButton(nullptr)
     , m_layout(nullptr)
     , m_gameScene(nullptr)
     , m_gameView(nullptr)
     , m_server(nullptr)
     , m_client(nullptr)
+    , m_rulesDialog(nullptr)
 {
     ui->setupUi(this);
     setupMenu();
@@ -39,16 +43,52 @@ MainWindow::~MainWindow()
 void MainWindow::setupMenu()
 {
     m_menuWidget = new QWidget(this);
+    m_menuWidget->setObjectName("menuWidget");
+
+    QString styleSheet = QLatin1String(R"(
+        QWidget#menuWidget {
+            background-color: black;
+        }
+        QPushButton {
+            background-color: #000000;
+            color: #FFFF00;
+            border: 2px solid #0000FF;
+            padding: 10px 20px;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 0px;
+            text-transform: uppercase;
+        }
+        QPushButton:hover {
+            background-color: #0000FF;
+            color: #FFFFFF;
+        }
+    )");
+    m_menuWidget->setStyleSheet(styleSheet);
+
     m_layout = new QVBoxLayout(m_menuWidget);
+
+    QLabel* titleLabel = new QLabel("PAC-MAN", m_menuWidget);
+    titleLabel->setAlignment(Qt::AlignCenter);
+    titleLabel->setStyleSheet("color: #FFFF00; font-size: 48px; font-weight: bold; font-family: 'Courier New', Courier, monospace;");
+    m_layout->addWidget(titleLabel);
+    m_layout->addSpacing(20);
+    m_layout->addStretch(1);
+
     m_hostButton = new QPushButton("Héberger une Partie", m_menuWidget);
     m_joinButton = new QPushButton("Rejoindre une Partie", m_menuWidget);
+    m_rulesButton = new QPushButton("Règles du jeu", m_menuWidget);
     m_layout->addWidget(m_hostButton);
     m_layout->addWidget(m_joinButton);
-    m_layout->addStretch();
+    m_layout->addWidget(m_rulesButton);
+    m_layout->addStretch(1);
+
     connect(m_hostButton, &QPushButton::clicked, this, &MainWindow::onHostButtonClicked);
     connect(m_joinButton, &QPushButton::clicked, this, &MainWindow::onJoinButtonClicked);
+    connect(m_rulesButton, &QPushButton::clicked, this, &MainWindow::onRulesButtonClicked);
     setCentralWidget(m_menuWidget);
-    resize(300, 200);
+    resize(480, 400);
 }
 
 void MainWindow::switchToGameView()
@@ -98,4 +138,12 @@ void MainWindow::onJoinButtonClicked()
         });
         m_client->connectToServer(hostAddress, 12345);
     }
+}
+
+void MainWindow::onRulesButtonClicked()
+{
+    if (!m_rulesDialog) {
+        m_rulesDialog = new RulesDialog(this);
+    }
+    m_rulesDialog->exec();
 }

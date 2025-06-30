@@ -10,17 +10,46 @@ RulesDialog::RulesDialog(QWidget *parent)
     : QDialog(parent)
 {
     setupUI();
-    setWindowTitle("Règles du Jeu Pacman");
+    setWindowTitle("Règles du jeu");
     setModal(true);
-    resize(500, 400);
+    resize(600, 500);
+
+    QString styleSheet = QLatin1String(R"(
+        QDialog {
+            background-color: black;
+        }
+        QLabel {
+            color: #FFFF00;
+            font-family: "Courier New", Courier, monospace;
+        }
+        QPushButton {
+            background-color: #000000;
+            color: #FFFF00;
+            border: 2px solid #0000FF;
+            padding: 10px 20px;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        QPushButton:hover {
+            background-color: #0000FF;
+            color: #FFFFFF;
+        }
+        QScrollArea {
+            border: none;
+        }
+    )");
+    this->setStyleSheet(styleSheet);
 }
 
 void RulesDialog::setupUI()
 {
     mainLayout = new QVBoxLayout(this);
 
-    QLabel *titleLabel = new QLabel("Règles du Jeu Pacman", this);
+    QLabel *titleLabel = new QLabel("Règles du Jeu", this);
     titleLabel->setAlignment(Qt::AlignCenter);
+    titleLabel->setStyleSheet("font-size: 36px; font-weight: bold;");
 
     scrollArea = new QScrollArea(this);
     scrollArea->setWidgetResizable(true);
@@ -31,26 +60,27 @@ void RulesDialog::setupUI()
     rulesLabel->setMargin(10);
 
     QString rulesText =
-        "<h1>Lorem ipsum dolo</h1>"
-        "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>"
+        "<h1>But du jeu</h1>"
+        "<p>Le but du jeu est de manger toutes les Pac-Gommes dans le labyrinthe sans se faire attraper par les fantômes.</p>"
 
-        "<h2>Lorem ipsum dolo</h2>"
-        "<p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>"
+        "<h2>Déplacements</h2>"
+        "<p>Utilisez les touches fléchées (Haut, Bas, Gauche, Droite) pour déplacer Pac-Man dans le labyrinthe.</p>"
 
-        "<h2>Lorem ipsum dolo</h2>"
-        "<p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>"
+        "<h2>Les Pac-Gommes</h2>"
+        "<p>Mangez toutes les petites gommes pour passer au niveau suivant. Les grosses gommes, appelées Super Pac-Gommes, vous rendent temporairement invincible et vous permettent de manger les fantômes.</p>"
 
-        "<h2>Lorem ipsum dolo</h2>"
-        "<p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.</p>"
+        "<h2>Les Fantômes</h2>"
+        "<p>Évitez les fantômes ! S'ils vous touchent, vous perdez une vie. Après avoir mangé une Super Pac-Gomme, les fantômes deviennent bleus et vous pouvez les manger pour gagner des points supplémentaires. Ils réapparaîtront ensuite à leur base.</p>"
 
-        "<h2>Lorem ipsum dolo</h2>"
-        "<p>Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.</p>"
+        "<h2>Le Score</h2>"
+        "<ul>"
+        "<li>Pac-Gomme : 10 points</li>"
+        "<li>Super Pac-Gomme : 50 points</li>"
+        "<li>Manger un fantôme : 200, 400, 800, 1600 points (le score double pour chaque fantôme mangé successivement)</li>"
+        "</ul>"
 
-        "<h2>Lorem ipsum dolo</h2>"
-        "<p>Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur.</p>"
-
-        "<h2>Lorem ipsum dolo</h2>"
-        "<p>At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident.</p>";
+        "<h2>Vies</h2>"
+        "<p>Vous commencez avec 3 vies. Vous perdez une vie chaque fois que vous êtes attrapé par un fantôme. Le jeu se termine lorsque vous n'avez plus de vies.</p>";
 
     rulesLabel->setText(rulesText);
     scrollArea->setWidget(rulesLabel);
